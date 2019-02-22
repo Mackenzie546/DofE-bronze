@@ -21,12 +21,36 @@
                 "#            #",
                 "##############"
                 ],
+                fruit: [
+                    {x: 1, y: 1}
+                ],
                 tick: function() {
                     window.clearTimeout(game.timer);
                     game.tickNumber++;
-                    snake.move();
+                    var result = snake.move();
+                    if(result == "gameover") {
+                        alert("Game over");
+                        return;
+                    }
                     graphics.drawGame();
                     game.timer = window.setTimeout("game.tick()", 500);
+                },
+                isEmpty: function(location) {
+                    var contents = game.board[location.y][location.x];
+                    return contents == ' ';
+                },
+                isWall: function(location) {
+                    return game.board [location.y][location.x] == '#'
+                },
+                isFruit: function(location) {
+                    for(var fruitNumber = 0; fruitNumber < game.fruit.length; fruitNumber++) {
+                        var fruit = game.fruit[fruitNumber];
+                        if(location.x == fruit.x && location.y == fruit.y) {
+                            game.fruit.splice(fruitNumber, 1);
+                            return true;
+                        }
+                    }
+                    return false;
                 }
             };
             var snake = {
@@ -48,8 +72,18 @@
                 },
                 move: function() {
                     var location = snake.nextLocation();
-                    snake.parts.unshift(location);
-                    snake.parts.pop();
+                    if(game.isEmpty(location)) {
+                        snake.parts.unshift(location);
+                        snake.parts.pop();
+                    }
+                    if(game.isWall(location)) {
+                        return "gameover";
+                    }
+                    if(game.isFruit(location)) {
+                        snake.parts.unshift(location);
+                        game.score++;
+
+                    }
                 }
             };
             var graphics = {
@@ -73,12 +107,12 @@
                         currentYoffset += graphics.squareSize;
                     });
                 },
-                drawSnake: function(ctx) {
-                    var ctx = graphics.canvas.getContext("2d");
-                    snake.parts.forEach(function drawPart(part) {
+             
+                draw: function(ctx, source, color) {
+                    source.forEach(function(part) {
                         var partXlocation = part.x * graphics.squareSize;
                         var partYlocation = part.y * graphics.squareSize;
-                        ctx.fillStyle = "green";
+                        ctx.fillStyle = color;
                         ctx.fillRect(partXlocation, partYlocation, graphics.squareSize, graphics.squareSize);
                     });
                 },
@@ -87,7 +121,8 @@
                     var ctx = graphics.canvas.getContext("2d");
                     ctx.clearRect(0, 0, graphics.canvas.width, graphics.canvas.height);
                     graphics.drawBoard(ctx);
-                    graphics.drawSnake(ctx);
+                    graphics.draw(ctx, snake.parts, "green");
+                    graphics.draw(ctx, game.fruit, "red");
                 }
             };
             graphics.drawGame();
