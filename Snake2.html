@@ -7,7 +7,7 @@
         <canvas id="canvas" width="1024" height="1024"></canvas>
         <script>
             var game = {
-                ticknumber: 0,
+                tickNumber: 0,
                 timer: null,
                 board: [
                 "##############",
@@ -27,6 +27,9 @@
                 tick: function() {
                     window.clearTimeout(game.timer);
                     game.tickNumber++;
+                    if(game.tickNumber % 10 == 0) {
+                        game.addRandomFruit();
+                    }
                     var result = snake.move();
                     if(result == "gameover") {
                         alert("Game over");
@@ -34,6 +37,14 @@
                     }
                     graphics.drawGame();
                     game.timer = window.setTimeout("game.tick()", 500);
+                },
+                addRandomFruit: function() {
+                    var randomY = Math.floor(Math.random() * game.board.length) + 0;
+                    var randomX = Math.floor(Math.random() * game.board[randomY].length) + 0;
+                    var randomLocation = {x: randomX, y: randomY};
+                    if(game.isEmpty(randomLocation) && !game.isFruit(randomLocation)) {
+                        game.fruit.push(randomLocation);
+                    }
                 },
                 isEmpty: function(location) {
                     var contents = game.board[location.y][location.x];
