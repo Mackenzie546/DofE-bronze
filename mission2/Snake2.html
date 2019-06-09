@@ -62,6 +62,15 @@
                         }
                     }
                     return false;
+                },
+                isSnake: function(location) {
+                    for(var snakePart = 0; snakePart < snake.parts.length; snakePart++) {
+                        var part = snake.parts[snakePart];
+                        if(locations.x == part.x && location.y == part.y) {
+                            return true;
+                        }
+                    }
+                    return false;
                 }
             };
             var snake = {
@@ -83,6 +92,14 @@
                 },
                 move: function() {
                     var location = snake.nextLocation();
+                    if(game.isWall(location)
+                        || game.isSnake(location)) {
+                        return "gameover";
+                    }
+                    if(game.isEmpty(location)) {
+                        snake.parts.unshift(location);
+                        snake.parts.pop();
+                    }
                     if(game.isEmpty(location)) {
                         snake.parts.unshift(location);
                         snake.parts.pop();
@@ -141,10 +158,10 @@
                 processInput: function(keyPressed) {
                     var key = keyPressed.key.toLowerCase();
                     var targetDirection = snake.facing;
-                    if(key == "w") targetDirection = "N";
-                    if(key == "a") targetDirection = "W";
-                    if(key == "s") targetDirection = "S";
-                    if(key == "d") targetDirection = "E";
+                    if(key == "w" && snake.facing != "S") targetDirection = "N";
+                    if(key == "a" && snake.facing != "E") targetDirection = "W";
+                    if(key == "s" && snake.facing != "N") targetDirection = "S";
+                    if(key == "d" && snake.facing != "W") targetDirection = "E";
                     snake.facing = targetDirection;
                     game.tick();
                 },
